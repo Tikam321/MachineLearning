@@ -1,5 +1,8 @@
-
 # Chapter 2: The Limits of Learning (Inductive Bias, Overfitting & Generalization)
+
+> **GitHub Mermaid Fix Applied:** GitHub's Mermaid parser throws a syntax error (`got 'PS'`) whenever a `subgraph` title contains unquoted parentheses `(` `)` or special symbols without an explicit ID and `["Title"]` syntax. All Mermaid diagrams below have been updated to use strict GitHub-compatible syntax (`subgraph ID ["Title"]`).
+
+---
 
 ## 1. Overview: Why Learning Has Fundamental Limits
 In Chapter 1, we built a Decision Tree algorithm (`DecisionTreeTrain`) that takes labeled training examples and induces a function $f$ to predict unseen test examples. However, a fundamental question arises: **Can a learning algorithm guaranteedly learn *any* target function from finite data?**
@@ -20,14 +23,15 @@ Even before considering unseen test data, a learning algorithm may struggle on t
 
 ```mermaid
 graph TD
-    A[Real-World Training Dataset D] --> B{Why can't we find a 100%<br>consistent & perfect tree?}
-    B --> C[1. Incomplete Feature Space<br>Insufficient Information]
-    B --> D[2. Label Noise / Contradictions<br>Stochastic Outcomes]
+    A["Real-World Training Dataset D"] --> B{"Why can't we find a 100%<br/>consistent and perfect tree?"}
+    B --> C["1. Incomplete Feature Space<br/>Insufficient Information"]
+    B --> D["2. Label Noise / Contradictions<br/>Stochastic Outcomes"]
     
-    C --> C1["Example: Course A and Course B have<br>identical features X = [CS=Yes, Math=No]<br>but represent different real complexities."]
-    D --> D1["Example: Alice took two identical sections,<br>liked one (+1) and hated one (-1)<br>due to an unobserved bad week."]
+    C --> C1["Example: Course A and Course B have<br/>identical features X = [CS=Yes, Math=No]<br/>but represent different real complexities."]
+    D --> D1["Example: Alice took two identical sections,<br/>liked one (+1) and hated one (-1)<br/>due to an unobserved bad week."]
     
-    C1 & D1 --> E[Result: Irreducible Error / Impure Leaf Nodes]
+    C1 --> E["Result: Irreducible Error / Impure Leaf Nodes"]
+    D1 --> E
 ```
 
 ### A. Insufficient Features (Feature Incompleteness)
@@ -49,20 +53,20 @@ To prove when learning works and when it fails, we must define the **Statistical
 
 ```mermaid
 flowchart LR
-    subgraph Unknown Nature / World
-        D_dist[("Data Generating<br>Distribution 𝒟<br>over X × Y")]
+    subgraph World ["Unknown Nature / World"]
+        D_dist[("Data Generating<br/>Distribution D<br/>over X x Y")]
     end
 
-    subgraph Training Phase (Batch)
-        D_dist -->|"Draw N i.i.d.<br>samples"| TrainSet["Training Set D<br>{(x₁,y₁), ..., (xₙ,yₙ)}"]
-        TrainSet --> Alg["Batch Learning Algorithm<br>(e.g., DecisionTreeTrain)"]
-        H_space["Hypothesis Space ℋ<br>(Set of allowed functions)"] --> Alg
-        Alg -->|"Selects best"| f_hat["Learned Function f ∈ ℋ"]
+    subgraph TrainPhase ["Training Phase - Batch"]
+        D_dist -->|"Draw N i.i.d. samples"| TrainSet["Training Set D<br/>(x1,y1), ..., (xN,yN)"]
+        TrainSet --> Alg["Batch Learning Algorithm<br/>DecisionTreeTrain"]
+        H_space["Hypothesis Space H<br/>Set of allowed functions"] --> Alg
+        Alg -->|"Selects best"| f_hat["Learned Function f in H"]
     end
 
-    subgraph Evaluation Phase (Generalization)
-        D_dist -->|"Draw new unseen<br>test pair (x, y)"| TestPoint["Test Example (x, y)"]
-        f_hat -->|"Predict ŷ = f(x)"| Loss["Loss Function ℓ(y, ŷ)<br>Expected Risk R(f)"]
+    subgraph EvalPhase ["Evaluation Phase - Generalization"]
+        D_dist -->|"Draw new unseen test pair"| TestPoint["Test Example (x, y)"]
+        f_hat -->|"Predict y_hat = f(x)"| Loss["Loss Function L(y, y_hat)<br/>Expected Risk R(f)"]
         TestPoint --> Loss
     end
 ```
@@ -141,11 +145,11 @@ To generalize to unseen examples, every learning algorithm **must** bring prior 
 
 ```mermaid
 graph TD
-    U["All Possible Mathematical Functions<br>|ℋ_all| = 2^(2^d)<br>(Pure Memorization / Coin-Flip on Unseen)"] 
-    -->|"Apply Inductive Bias<br>(Restrict or Prefer Simpler Functions)"| H["Restricted Hypothesis Space ℋ<br>(e.g., Shallow Decision Trees, Linear Models)"]
+    U["All Possible Mathematical Functions<br/>|H_all| = 2^(2^d)<br/>Pure Memorization / Coin-Flip on Unseen"] 
+    -->|"Apply Inductive Bias"| H["Restricted Hypothesis Space H<br/>e.g., Shallow Decision Trees, Linear Models"]
     
-    H --> R1["1. Restriction Bias<br>Hard-limit the set of allowed models<br>(e.g., max_depth = 3)"]
-    H --> R2["2. Preference (Search) Bias<br>Search through simple models first<br>(e.g., Greedy Top-Down ID3 / Occam's Razor)"]
+    H --> R1["1. Restriction Bias<br/>Hard-limit the set of allowed models<br/>e.g., max_depth = 3"]
+    H --> R2["2. Preference or Search Bias<br/>Search through simple models first<br/>e.g., Greedy Top-Down ID3 / Occam's Razor"]
 ```
 
 ### Two Types of Inductive Bias
@@ -169,23 +173,23 @@ Because the real world contains noise and finite training samples, growing a Dec
 
 ```mermaid
 graph LR
-    subgraph Underfitting [Underfitting: Too Much Bias]
-        U1["Shallow Tree<br>(e.g., Depth = 1)"] --> U2["Ignores key features"]
-        U2 --> U3["High Train Error<br>High Test Error"]
+    subgraph Underfitting ["Underfitting - Too Much Bias"]
+        U1["Shallow Tree<br/>e.g., Depth = 1"] --> U2["Ignores key features"]
+        U2 --> U3["High Train Error<br/>High Test Error"]
     end
 
-    subgraph SweetSpot [Sweet Spot: Optimal Inductive Bias]
-        S1["Pruned / Depth-Bounded Tree<br>(e.g., Depth = 3)"] --> S2["Captures signal,<br>ignores noise"]
-        S2 --> S3["Low Train Error<br>Lowest Test Error"]
+    subgraph SweetSpot ["Sweet Spot - Optimal Inductive Bias"]
+        S1["Pruned or Depth-Bounded Tree<br/>e.g., Depth = 3"] --> S2["Captures signal,<br/>ignores noise"]
+        S2 --> S3["Low Train Error<br/>Lowest Test Error"]
     end
 
-    subgraph Overfitting [Overfitting: Too Little Bias]
-        O1["Unbounded Deep Tree<br>(e.g., Depth = 20)"] --> O2["Memorizes noisy rows<br>& coincidences"]
-        O2 --> O3["Zero Train Error (0%)<br>High Test Error"]
+    subgraph Overfitting ["Overfitting - Too Little Bias"]
+        O1["Unbounded Deep Tree<br/>e.g., Depth = 20"] --> O2["Memorizes noisy rows<br/>and coincidences"]
+        O2 --> O3["Zero Train Error 0%<br/>High Test Error"]
     end
 
-    Underfitting -->|Increase Depth| SweetSpot
-    SweetSpot -->|Grow Unconstrained| Overfitting
+    Underfitting -->|"Increase Depth"| SweetSpot
+    SweetSpot -->|"Grow Unconstrained"| Overfitting
 ```
 
 ### Concrete Example: How Noise Causes Overfitting in a Tree
@@ -210,9 +214,9 @@ In **Batch Learning**, the algorithm is given the **entire training dataset $D =
 
 ```mermaid
 flowchart LR
-    D["Full Batch Dataset D<br>(All N examples in memory)"] --> BatchAlg["Batch Algorithm<br>Computes global statistics<br>(e.g., Information Gain across all N rows)"]
+    D["Full Batch Dataset D<br/>All N examples in memory"] --> BatchAlg["Batch Algorithm<br/>Computes global statistics<br/>e.g., Information Gain across all N rows"]
     BatchAlg --> Model["Static Trained Model f"]
-    Model --> Deploy["Deployed for Inference<br>(Does not update on test data)"]
+    Model --> Deploy["Deployed for Inference<br/>Does not update on test data"]
 ```
 
 #### Key Batch Algorithms Covered in Early ML:
@@ -245,17 +249,19 @@ We partition our available labeled dataset into three strictly disjoint subsets:
 
 ```mermaid
 graph TD
-    FullData["Total Labeled Dataset (100%)"] --> Train["1. Training Set (~70%)<br>Used to build the tree splits<br>(Run DecisionTreeTrain)"]
-    FullData --> Val["2. Validation / Dev Set (~15%)<br>Used to tune hyperparameters<br>(Select optimal max_depth or prune)"]
-    FullData --> Test["3. Test Set (~15%)<br>LOCKED IN A VAULT!<br>Used ONCE at the very end to estimate R(f)"]
+    FullData["Total Labeled Dataset 100%"] --> Train["1. Training Set ~70%<br/>Used to build the tree splits<br/>Run DecisionTreeTrain"]
+    FullData --> Val["2. Validation or Dev Set ~15%<br/>Used to tune hyperparameters<br/>Select optimal max_depth or prune"]
+    FullData --> Test["3. Test Set ~15%<br/>LOCKED IN A VAULT<br/>Used ONCE at the very end to estimate R(f)"]
 
-    Train --> M1["Train Tree (depth=1)"]
-    Train --> M2["Train Tree (depth=3)"]
-    Train --> M3["Train Tree (depth=10)"]
+    Train --> M1["Train Tree depth=1"]
+    Train --> M2["Train Tree depth=3"]
+    Train --> M3["Train Tree depth=10"]
 
-    M1 & M2 & M3 --> EvalVal{"Evaluate all 3 on<br>Validation Set"}
-    EvalVal -->|"Lowest Val Error"| BestModel["Winner: Tree (depth=3)"]
-    BestModel --> FinalCheck["Evaluate Winner on Test Set<br>Report Final Generalization Accuracy"]
+    M1 --> EvalVal{"Evaluate all 3 on<br/>Validation Set"}
+    M2 --> EvalVal
+    M3 --> EvalVal
+    EvalVal -->|"Lowest Val Error"| BestModel["Winner: Tree depth=3"]
+    BestModel --> FinalCheck["Evaluate Winner on Test Set<br/>Report Final Generalization Accuracy"]
     Test --> FinalCheck
 ```
 
@@ -349,5 +355,3 @@ print(f"Final Generalization Test Error:       {test_err:.3f}")
 | **Underfitting** | Model is too restricted (e.g., `depth = 1`). | High Train Error + High Test Error. |
 | **Overfitting** | Model is too complex; fits noise (e.g., `depth = None`). | Near-Zero Train Error + High Test Error. |
 | **Validation / Dev Set** | Held-out subset used to tune hyperparameters (`max_depth`). | Keeps the Test Set pure so we don't overfit our hyperparameter choices to the Test Set. |
-
-```
